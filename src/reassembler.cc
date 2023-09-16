@@ -16,7 +16,7 @@ last_index(-1){
 
 void Reassembler::insert( uint64_t first_index, string data, bool is_last_substring, Writer& output )
 {
-  std::cout << "--------------first_index: " << first_index << "-----data: " << data <<endl; 
+  // std::cout << "--------------first_index: " << first_index << "-----data: " << data <<endl; 
   // Your code here.
   if(_init){
     _reassemblerBuf.resize(output.available_capacity());
@@ -48,7 +48,7 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
       if(first_index+data.length() < first_unacceptable_index){
         str_end = first_index+data.length()-1;
       }
-      std::cout << "--------------str_strat: " << str_strat << "-----str_end: " << str_end <<endl; 
+      // std::cout << "--------------str_strat: " << str_strat << "-----str_end: " << str_end <<endl; 
       for (uint64_t i = str_strat; i <= str_end; i++)
       {
         //滑动窗口最左侧为first_unassembled_index，unpop和poped数据为output.bytes_pushed
