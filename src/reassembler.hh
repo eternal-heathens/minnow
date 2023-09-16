@@ -6,6 +6,16 @@
 
 class Reassembler
 {
+private:
+
+  std::deque<char> _reassemblerBuf;
+  std::deque<char> _flag;
+  uint64_t first_unassembled_index;
+  uint64_t first_unacceptable_index;
+  bool _init;
+  uint64_t last_index;
+
+
 public:
   /*
    * Insert a new substring to be reassembled into a ByteStream.
@@ -28,6 +38,8 @@ public:
    * The Reassembler should close the stream after writing the last byte.
    */
   void insert( uint64_t first_index, std::string data, bool is_last_substring, Writer& output );
+
+  Reassembler();
 
   // How many bytes are stored in the Reassembler itself?
   uint64_t bytes_pending() const;

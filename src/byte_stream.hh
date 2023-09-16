@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 
+
 class Reader;
 class Writer;
 
@@ -12,6 +13,11 @@ class ByteStream
 {
 protected:
   uint64_t capacity_;
+  bool _eof;
+  bool _errorS;
+  std::deque<char> _buffer;
+  uint64_t _total_bytes_pushed;
+  uint64_t _total_bytes_popped;
   // Please add any additional state to the ByteStream here, and not to the Writer and Reader interfaces.
 
 public:
