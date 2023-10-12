@@ -19,6 +19,7 @@ void TCPReceiver::receive( TCPSenderMessage message, Reassembler& reassembler, W
   }
 
   if(is_set_isn){
+    //记得绝对值到index要-1
     reassembler.insert(message.seqno.unwrap(isn,inbound_stream.bytes_pushed())-1,message.payload,message.FIN,inbound_stream);
   }
 
@@ -34,7 +35,7 @@ TCPReceiverMessage TCPReceiver::send( const Writer& inbound_stream ) const
   // _first_unassembled_index先+1转成abs seqno，再wrap
   Wrap32 ackNo = Wrap32::wrap(inbound_stream.bytes_pushed()+1,isn);
   if(is_set_isn){
-    //不能通过is_set_fin来判断，如果有冗余的fin先到，会导致多加1,用ackno比较则fin会被过滤，不会相等
+    //不能通过is_set_fin来判断，如果有冗余的fin先到，会导致多加1,用ackno比较则冗余fin会被过滤，不会相等
     tcpReceiverMessage.ackno = ackNo==fin?ackNo+1:ackNo;
   }
   tcpReceiverMessage.window_size  = inbound_stream.available_capacity()>UINT16_MAX?UINT16_MAX:inbound_stream.available_capacity();
