@@ -23,12 +23,10 @@ NetworkInterface::NetworkInterface( const EthernetAddress& ethernet_address, con
 // Address::ipv4_numeric() method.
 void NetworkInterface::send_datagram( const InternetDatagram& dgram, const Address& next_hop )
 {
-  std::cout << "---------------------------send_datagram" <<endl;
   uint32_t next_hop_ipv4 = next_hop.ipv4_numeric();
   // 看当前ip映射Ethernet mapping 是否生效
   EthernetFrame frame;
   if(ip_to_Ethernet.find(next_hop_ipv4) != ip_to_Ethernet.end() ){
-    std::cout << "---------------------------frame.header.src" << frame.header.to_string()<<endl;
     frame.header.type = EthernetHeader::TYPE_IPv4;
     frame.header.src = ethernet_address_;
     frame.header.dst = ip_to_Ethernet.find(next_hop_ipv4)->second.first;
@@ -47,7 +45,6 @@ void NetworkInterface::send_datagram( const InternetDatagram& dgram, const Addre
       frame.header.type = EthernetHeader::TYPE_ARP;
       frame.header.src = ethernet_address_;
       frame.header.dst = ETHERNET_BROADCAST;
-      std::cout << "---------------------------arp frame.header.src" << frame.header.to_string()<<endl;
       frame.payload = serialize(arp_message);
       //dgram进入排队队列，arp请求记录时间
       wait_ip_datagrams[next_hop_ipv4].push_back(dgram);
@@ -64,7 +61,6 @@ void NetworkInterface::send_datagram( const InternetDatagram& dgram, const Addre
 // frame: the incoming Ethernet frame
 optional<InternetDatagram> NetworkInterface::recv_frame( const EthernetFrame& frame )
 {
-  std::cout << "---------------------------recv_frame" << frame.header.to_string()<<endl;
   //如果目标地址不是广播地址也不是本机Ethernet address
   if(frame.header.dst != ETHERNET_BROADCAST && frame.header.dst != ethernet_address_){
     return nullopt;
@@ -72,7 +68,6 @@ optional<InternetDatagram> NetworkInterface::recv_frame( const EthernetFrame& fr
   // 如果是IPv4
  
   if(frame.header.type == EthernetHeader::TYPE_IPv4){
-     std::cout << "---------------------------recv_frame ipv4"<<endl;
     InternetDatagram dgram;
     if(parse(dgram,frame.payload)){
       return dgram;
@@ -80,7 +75,6 @@ optional<InternetDatagram> NetworkInterface::recv_frame( const EthernetFrame& fr
   }
   // 如果是ARP
   if(frame.header.type == EthernetHeader::TYPE_ARP){
-    std::cout << "---------------------------recv_frame TYPE_ARP"<<endl;
       //返回
       ARPMessage arp_msg;
       if(parse(arp_msg,frame.payload)){
@@ -100,7 +94,6 @@ optional<InternetDatagram> NetworkInterface::recv_frame( const EthernetFrame& fr
               newframe.header.type = EthernetHeader::TYPE_IPv4;
               newframe.header.src = ethernet_address_;
               newframe.header.dst = ip_to_Ethernet[arp_msg.sender_ip_address].first;
-              std::cout << "---------------------------ip_to_Ethernet[arp_msg.sender_ip_address].first"<< dgram.header.to_string()<<endl;
               newframe.payload = serialize(dgram);
               send_ethernet.push_back(newframe);
             }
@@ -127,7 +120,6 @@ optional<InternetDatagram> NetworkInterface::recv_frame( const EthernetFrame& fr
             newframe.header.src = ethernet_address_;
             newframe.header.dst = arp_msg.sender_ethernet_address;
             newframe.payload = serialize(back_arp_message);
-            std::cout << "---------------------------recv_frame OPCODE_REQUEST"<<endl;
             send_ethernet.push_back(newframe);
           }
         }
@@ -155,7 +147,6 @@ void NetworkInterface::tick( const size_t ms_since_last_tick )
   for (auto it = ip_to_Ethernet.begin(); it != ip_to_Ethernet.end();){
     it->second.second-=ms_since_last_tick;
     if(it->second.second <=0){
-      std::cout << "---------------------------ip_to_Ethernet 超时"<<endl;
       it = ip_to_Ethernet.erase(it);
     }else{
       ++it;
@@ -166,7 +157,6 @@ void NetworkInterface::tick( const size_t ms_since_last_tick )
 
 optional<EthernetFrame> NetworkInterface::maybe_send()
 {
-  std::cout << "---------------------------maybe_send"<<endl;
   if(send_ethernet.empty()){
     return nullopt;
   }
