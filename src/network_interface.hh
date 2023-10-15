@@ -41,6 +41,20 @@ private:
   // IP (known as Internet-layer or network-layer) address of the interface
   Address ip_address_;
 
+  // 有对应对应Ethernet的发送队列
+  std::deque<EthernetFrame> send_ethernet;
+  // 目标IP对应Ethernet没有缓存的 IP Datagram排队队列
+  std::unordered_map<uint32_t,std::vector<InternetDatagram>> wait_ip_datagrams;
+  //存放已发送的arp帧的ip和时间，相同目标ip已发送的arp请求，在5秒内不要再重发
+  std::unordered_map<uint32_t,int> sended_arp_req;
+  // IP 到Ethernet ip的映射和对应存放时间
+  std::unordered_map<uint32_t,std::pair<EthernetAddress,int>> ip_to_Ethernet;
+  // ARP 重发time
+  int arp_ttl;
+  // IP-ethernet 失效 ttl
+  int ip_ethernet_ttl;
+  
+
 public:
   // Construct a network interface with given Ethernet (network-access-layer) and IP (internet-layer)
   // addresses
