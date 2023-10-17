@@ -48,12 +48,28 @@ public:
   }
 };
 
+struct _route_data{
+  std::optional<Address> next_hop{};
+  size_t interface_num {};
+};
+
+struct hash_pair{
+  template<class T1,class T2>
+  size_t operator()(const std::pair<T1,T2> &p)const{
+    auto hash1 = std::hash<T1>{}(p.first);
+    auto hash2 = std::hash<T2>{}(p.second);
+    return hash1^hash2;
+  }
+};
+
 // A router that has multiple network interfaces and
 // performs longest-prefix-match routing between them.
 class Router
 {
   // The router's collection of network interfaces
   std::vector<AsyncNetworkInterface> interfaces_ {};
+  //_route_table
+  std::unordered_map<std::pair<uint32_t,uint8_t>,_route_data,hash_pair>  _route_table {};
 
 public:
   // Add an interface to the router
@@ -82,3 +98,5 @@ public:
   // destination address.
   void route();
 };
+
+

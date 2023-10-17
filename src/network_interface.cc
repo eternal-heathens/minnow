@@ -88,7 +88,6 @@ optional<InternetDatagram> NetworkInterface::recv_frame( const EthernetFrame& fr
 
           //将 IP Datagram排队队列 数据取出，包装成frame 发送到Ethernet的发送队列
           if(wait_ip_datagrams.find(arp_msg.sender_ip_address) != wait_ip_datagrams.end()){
-            std::cout << "---------------------------size i"<< wait_ip_datagrams.find(arp_msg.sender_ip_address)->second.size()<<endl;
             for(InternetDatagram dgram:wait_ip_datagrams.find(arp_msg.sender_ip_address)->second){
               EthernetFrame newframe;
               newframe.header.type = EthernetHeader::TYPE_IPv4;
